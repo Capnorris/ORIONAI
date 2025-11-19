@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { PowerSyncDatabase, Schema, Table, Column, ColumnType } from '@powersync/web';
 
+import { SupabaseConnector } from '@/lib/powersync/connector';
+
 // Define the PowerSync AppSchema
 // This must match the server-side manifest and local usage.
 const schema = new Schema({
@@ -70,10 +72,11 @@ export const PowerSyncProvider = ({ children }: { children: React.ReactNode }) =
             } as any,
         });
 
+        const connector = new SupabaseConnector();
+
         const init = async () => {
             await powerSync.init();
-            // In a real app, we would connect to the backend here using a connector
-            // await powerSync.connect(new SupabaseConnector(...));
+            await powerSync.connect(connector);
             setDb(powerSync);
         };
 

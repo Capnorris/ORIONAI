@@ -17,11 +17,11 @@
 - [x] **Feature: Budget Logic:** Implement `src/features/budget/logic/envelope.ts`. Create the "Safe to Spend" calculation: `(Remaining / Days Left)`.
 
 ## Phase 3: The Cloud (Supabase & Sync)
-- [ ] **Supabase Setup:** Initialize remote Supabase project. Run SQL scripts from PRD 3.2 to create `users`, `transactions`, and `recurring_rules` tables.
-- [ ] **PowerSync Manifest:** Configure the `orion_sync` manifest in the PowerSync dashboard to match the YAML snippet in PRD 3.3.
-- [ ] **Authentication:** Implement Supabase Auth in `src/app/(auth)`. Create the `users` record trigger on signup.
-- [ ] **Connect Sync:** Update `powersync-provider.tsx` to handle the authentication token and connect to the PowerSync instance.
-- [ ] **Verify Sync:** Test creating a transaction offline, then coming online to see it propagate to Supabase.
+- [/] **Supabase Setup:** Initialize remote Supabase project. Run SQL scripts from PRD 3.2 to create `users`, `transactions`, and `recurring_rules` tables.
+- [/] **PowerSync Manifest:** Configure the `orion_sync` manifest in the PowerSync dashboard to match the YAML snippet in PRD 3.3.
+- [/] **Authentication:** Implement Supabase Auth in `src/app/(auth)`. Create the `users` record trigger on signup.
+- [/] **Connect Sync:** Update `powersync-provider.tsx` to handle the authentication token and connect to the PowerSync instance.
+- [/] **Verify Sync:** Test creating a transaction offline, then coming online to see it propagate to Supabase.
 
 ## Phase 4: Advanced Features & AI
 - [ ] **Feature: Receipts:** Implement `src/lib/supabase/storage.ts`. Add client-side image compression (WebP, max 1024px) before upload.

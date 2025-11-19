@@ -1,0 +1,34 @@
+name: orion_sync
+tables:
+  transactions:
+    columns:
+      - id
+      - user_id
+      - amount_cents
+      - currency
+      - original_amount_cents
+      - original_currency
+      - fx_rate_snapshot
+      - date
+      - merchant
+      - category_id
+      - receipt_url
+      - created_at
+      - updated_at
+  users:
+    columns:
+      - id
+      - email
+      - license_key
+      - lifetime_access
+      - base_currency
+      - created_at
+  recurring_rules:
+    columns:
+      - id
+      - user_id
+      - rrule_string
+      - amount_cents
+      - active
+      - start_date
+      - end_date
