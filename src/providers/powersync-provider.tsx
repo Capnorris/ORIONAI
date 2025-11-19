@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { PowerSyncDatabase, Schema, Table, Column, ColumnType } from '@powersync/web';
+import { PowerSyncDatabase, Schema, Table, Column, ColumnType, WASQLiteOpenFactory } from '@powersync/web';
 
 import { SupabaseConnector } from '@/lib/powersync/connector';
 
@@ -71,12 +71,16 @@ export const PowerSyncProvider = ({ children }: { children: React.ReactNode }) =
             try {
                 console.log('Initializing PowerSync...');
 
-                // Initialize PowerSync
                 powerSync = new PowerSyncDatabase({
                     schema,
-                    database: {
+                    database: new WASQLiteOpenFactory({
                         dbFilename: 'orion_db_v1.db',
-                    },
+                        worker: '/worker/WASQLiteDB.umd.js',
+                        wasmURL: '/powersync.wasm'
+                    } as any),
+                    sync: {
+                        worker: '/worker/SharedSyncImplementation.umd.js'
+                    }
                 });
 
                 await powerSync.init();
@@ -108,7 +112,9 @@ export const PowerSyncProvider = ({ children }: { children: React.ReactNode }) =
 
         return () => {
             if (powerSync) {
-                powerSync.disconnectAndClear().catch(console.error);
+                // Use disconnect() instead of disconnectAndClear() to preserve local data
+                // This allows data to persist across logout/login cycles
+                powerSync.disconnect().catch(console.error);
             }
         };
     }, []);

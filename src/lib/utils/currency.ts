@@ -26,7 +26,7 @@ export function fromCents(cents: number): number {
  * @param currency Currency code (e.g. 'USD')
  */
 export function formatCurrency(cents: number, currency: string = 'USD'): string {
-    return Dinero({ amount: cents, currency }).toFormat('$0,0.00');
+    return Dinero({ amount: cents, currency: currency as any }).toFormat('$0,0.00');
 }
 
 /**
@@ -36,8 +36,8 @@ export function formatCurrency(cents: number, currency: string = 'USD'): string 
  * @param currency Currency code
  */
 export function addMoney(amountA: number, amountB: number, currency: string = 'USD'): number {
-    const a = Dinero({ amount: amountA, currency });
-    const b = Dinero({ amount: amountB, currency });
+    const a = Dinero({ amount: amountA, currency: currency as any });
+    const b = Dinero({ amount: amountB, currency: currency as any });
     return a.add(b).getAmount();
 }
 
@@ -48,8 +48,8 @@ export function addMoney(amountA: number, amountB: number, currency: string = 'U
  * @param currency Currency code
  */
 export function subtractMoney(amountA: number, amountB: number, currency: string = 'USD'): number {
-    const a = Dinero({ amount: amountA, currency });
-    const b = Dinero({ amount: amountB, currency });
+    const a = Dinero({ amount: amountA, currency: currency as any });
+    const b = Dinero({ amount: amountB, currency: currency as any });
     return a.subtract(b).getAmount();
 }
 
@@ -60,12 +60,12 @@ export function subtractMoney(amountA: number, amountB: number, currency: string
  * @param currency Currency code
  */
 export function multiplyMoney(amount: number, factor: number, currency: string = 'USD'): number {
-    return Dinero({ amount, currency }).multiply(factor).getAmount();
+    return Dinero({ amount, currency: currency as any }).multiply(factor).getAmount();
 }
 
 /**
  * Allocates money into parts (e.g. for splitting budget).
  */
 export function allocateMoney(amount: number, ratios: number[], currency: string = 'USD'): number[] {
-    return Dinero({ amount, currency }).allocate(ratios).map((d: Dinero.Dinero) => d.getAmount());
+    return Dinero({ amount, currency: currency as any }).allocate(ratios).map((d: Dinero.Dinero) => d.getAmount());
 }

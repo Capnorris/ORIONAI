@@ -1,27 +1,45 @@
 import { usePowerSync } from '@/providers/powersync-provider';
 import { useEffect, useState } from 'react';
 import { Transaction } from '../types';
+import { createClient } from '@/lib/supabase/client';
 
 export function useTransactions() {
     const db = usePowerSync();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
+    const [userId, setUserId] = useState<string | null>(null);
+
+    // Get current user
+    useEffect(() => {
+        const supabase = createClient();
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUserId(session?.user?.id ?? null);
+        });
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUserId(session?.user?.id ?? null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     useEffect(() => {
+        // Don't fetch if no user is logged in
+        if (!userId) {
+            setTransactions([]);
+            setLoading(false);
+            return;
+        }
+
         const abortController = new AbortController();
 
         const fetchTransactions = async () => {
             try {
-                // Subscribe to changes
-                // Note: PowerSync's onChange listener or a watched query is better.
-                // For simplicity in this phase, we'll use a watched query pattern if available,
-                // or just a simple query + polling/subscription.
-                // The standard way is db.watch(...)
-
-                const query = 'SELECT * FROM transactions ORDER BY date DESC';
+                // Filter by user_id to only show current user's transactions
+                const query = 'SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC';
 
                 // Using watch to get real-time updates
-                const result = db.watch(query, [], {
+                const result = db.watch(query, [userId], {
                     signal: abortController.signal
                 });
 
@@ -45,7 +63,7 @@ export function useTransactions() {
         return () => {
             abortController.abort();
         };
-    }, [db]);
+    }, [db, userId]);
 
     const addTransaction = async (data: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>) => {
         await db.execute(
@@ -55,5 +73,22 @@ export function useTransactions() {
         );
     };
 
-    return { transactions, loading, addTransaction };
+    const updateTransaction = async (id: string, data: Partial<Omit<Transaction, 'id' | 'created_at' | 'updated_at'>>) => {
+        const keys = Object.keys(data).filter(k => k !== 'user_id'); // Don't allow changing user_id typically
+        if (keys.length === 0) return;
+
+        const setClause = keys.map(key => `${key} = ?`).join(', ');
+        const values = keys.map(key => (data as any)[key]);
+
+        await db.execute(
+            `UPDATE transactions SET ${setClause}, updated_at = datetime('now') WHERE id = ?`,
+            [...values, id]
+        );
+    };
+
+    const deleteTransaction = async (id: string) => {
+        await db.execute('DELETE FROM transactions WHERE id = ?', [id]);
+    };
+
+    return { transactions, loading, addTransaction, updateTransaction, deleteTransaction };
 }

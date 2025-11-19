@@ -11,14 +11,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 // But I didn't install "form". I'll use raw inputs with shadcn styling for now to save time, or install form.
 // Let's stick to raw inputs with shadcn classes.
 
-import { toCents } from '@/lib/utils/currency';
+import { toCents, fromCents } from '@/lib/utils/currency';
 import { useTransactions } from '../hooks/use-transactions';
 import { useEffect, useState } from 'react';
 
 import { createClient } from '@/lib/supabase/client';
 
-export function TransactionForm() {
-    const { addTransaction } = useTransactions();
+export function TransactionForm({ initialData, onSuccess }: { initialData?: import('../types').Transaction, onSuccess?: () => void }) {
+    const { addTransaction, updateTransaction } = useTransactions();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [userId, setUserId] = useState<string | null>(null);
 
@@ -39,8 +39,10 @@ export function TransactionForm() {
     } = useForm<CreateTransactionInput>({
         resolver: zodResolver(CreateTransactionInputSchema),
         defaultValues: {
-            currency: 'USD',
-            date: new Date(),
+            amount: initialData ? fromCents(initialData.amount_cents) : undefined,
+            currency: initialData?.currency || 'USD',
+            date: initialData ? new Date(initialData.date) : new Date(),
+            merchant: initialData?.merchant || undefined,
         }
     });
 
@@ -51,23 +53,32 @@ export function TransactionForm() {
         }
         setIsSubmitting(true);
         try {
-            // CONVERSION HAPPENS HERE
             const amountCents = toCents(data.amount);
 
-            await addTransaction({
-                user_id: userId,
-                amount_cents: amountCents,
-                currency: data.currency,
-                date: data.date.toISOString(),
-                merchant: data.merchant || null,
-                original_amount_cents: null,
-                original_currency: null,
-                fx_rate_snapshot: null,
-                category_id: null,
-                receipt_url: null,
-            });
+            if (initialData) {
+                await updateTransaction(initialData.id, {
+                    amount_cents: amountCents,
+                    currency: data.currency,
+                    date: data.date.toISOString(),
+                    merchant: data.merchant || null,
+                });
+            } else {
+                await addTransaction({
+                    user_id: userId,
+                    amount_cents: amountCents,
+                    currency: data.currency,
+                    date: data.date.toISOString(),
+                    merchant: data.merchant || null,
+                    original_amount_cents: null,
+                    original_currency: null,
+                    fx_rate_snapshot: null,
+                    category_id: null,
+                    receipt_url: null,
+                });
+                reset();
+            }
 
-            reset();
+            if (onSuccess) onSuccess();
         } catch (e) {
             console.error(e);
         } finally {
@@ -76,29 +87,35 @@ export function TransactionForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-4 border rounded-lg shadow-sm bg-card text-card-foreground">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-                <label className="text-sm font-medium">Amount (Float)</label>
+                <label className="text-sm font-medium text-white">Amount</label>
                 <Input
                     type="number"
                     step="0.01"
                     placeholder="0.00"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
                     {...register('amount', { valueAsNumber: true })}
                 />
-                {errors.amount && <p className="text-red-500 text-xs">{errors.amount.message}</p>}
+                {errors.amount && <p className="text-red-400 text-xs">{errors.amount.message}</p>}
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium">Merchant</label>
+                <label className="text-sm font-medium text-white">Merchant</label>
                 <Input
                     type="text"
                     placeholder="Starbucks"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
                     {...register('merchant')}
                 />
             </div>
 
-            <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Add Transaction'}
+            <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.2)] transition-all hover:scale-[1.02]"
+            >
+                {isSubmitting ? 'Saving...' : (initialData ? 'Update Transaction' : 'Add Transaction')}
             </Button>
         </form>
     );
