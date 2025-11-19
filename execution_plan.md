@@ -17,17 +17,17 @@
 - [x] **Feature: Budget Logic:** Implement `src/features/budget/logic/envelope.ts`. Create the "Safe to Spend" calculation: `(Remaining / Days Left)`.
 
 ## Phase 3: The Cloud (Supabase & Sync)
-- [/] **Supabase Setup:** Initialize remote Supabase project. Run SQL scripts from PRD 3.2 to create `users`, `transactions`, and `recurring_rules` tables.
-- [/] **PowerSync Manifest:** Configure the `orion_sync` manifest in the PowerSync dashboard to match the YAML snippet in PRD 3.3.
-- [/] **Authentication:** Implement Supabase Auth in `src/app/(auth)`. Create the `users` record trigger on signup.
-- [/] **Connect Sync:** Update `powersync-provider.tsx` to handle the authentication token and connect to the PowerSync instance.
-- [/] **Verify Sync:** Test creating a transaction offline, then coming online to see it propagate to Supabase.
+- [x] **Supabase Setup:** Initialize remote Supabase project. Run SQL scripts from PRD 3.2 to create `users`, `transactions`, and `recurring_rules` tables.
+- [x] **PowerSync Manifest:** Configure the `orion_sync` manifest in the PowerSync dashboard to match the YAML snippet in PRD 3.3.
+- [x] **Authentication:** Implement Supabase Auth in `src/app/(auth)`. Create the `users` record trigger on signup.
+- [x] **Connect Sync:** Update `powersync-provider.tsx` to handle the authentication token and connect to the PowerSync instance.
+- [x] **Verify Sync:** Test creating a transaction offline, then coming online to see it propagate to Supabase.
 
 ## Phase 4: Advanced Features & AI
-- [ ] **Feature: Receipts:** Implement `src/lib/supabase/storage.ts`. Add client-side image compression (WebP, max 1024px) before upload.
-- [ ] **Feature: Recurring Rules:** Implement the "Update Future Only" logic in `src/features/transactions/actions.ts`. Ensure it caps the old rule and creates a new one.
-- [ ] **Feature: Privacy Gate:** Build the "Enable AI Coach" modal. Check for sync status before allowing activation.
-- [ ] **Feature: AI Coach:** Create Server Actions in `src/features/ai-coach/actions.ts`. Implement the logic to fetch *server-side* data from Supabase (not local) to feed the LLM.
+- [x] **Feature: Receipts:** Implement `src/lib/supabase/storage.ts`. Add client-side image compression (WebP, max 1024px) before upload.
+- [x] **Feature: Recurring Rules:** Implement the "Update Future Only" logic in `src/features/transactions/actions.ts`. Ensure it caps the old rule and creates a new one.
+- [x] **Feature: Privacy Gate:** Build the "Enable AI Coach" modal. Check for sync status before allowing activation.
+- [x] **Feature: AI Coach:** Create Server Actions in `src/features/ai-coach/actions.ts`. Implement the logic to fetch *server-side* data from Supabase (not local) to feed the LLM.
 
 ## Phase 5: Verification & Polish
 - [ ] **Audit: Integer Math:** Grep codebase for any `+` or `-` operators on currency variables. Replace with `dinero` functions.
