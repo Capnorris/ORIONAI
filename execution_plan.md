@@ -30,7 +30,9 @@
 - [x] **Feature: AI Coach:** Create Server Actions in `src/features/ai-coach/actions.ts`. Implement the logic to fetch *server-side* data from Supabase (not local) to feed the LLM.
 
 ## Phase 5: Verification & Polish
-- [ ] **Audit: Integer Math:** Grep codebase for any `+` or `-` operators on currency variables. Replace with `dinero` functions.
-- [ ] **Audit: Performance:** Run Lighthouse. Verify Time to Interactive is < 1.5s.
-- [ ] **Audit: Type Safety:** Run `tsc --noEmit` to ensure zero type errors.
-- [ ] **Final Walkthrough:** Verify the "Offline to Online" sync flow works without data loss.
+- [x] **Audit: Integer Math:** Grep codebase for any `+` or `-` operators on currency variables. Replace with `dinero` functions.
+- [x] **Audit: Performance:** Run Lighthouse. Verify Time to Interactive is < 1.5s.
+- [x] **Audit: Type Safety:** Run `tsc --noEmit` to ensure zero type errors.
+- [x] **Final Walkthrough:** Verify the "Offline to Online" sync flow works without data loss.
+
+**PROJECT COMPLETION DATE: 2025-11-19**

@@ -13,11 +13,23 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 
 import { toCents } from '@/lib/utils/currency';
 import { useTransactions } from '../hooks/use-transactions';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { createClient } from '@/lib/supabase/client';
 
 export function TransactionForm() {
     const { addTransaction } = useTransactions();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const supabase = createClient();
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                setUserId(session.user.id);
+            }
+        });
+    }, []);
 
     const {
         register,
@@ -33,13 +45,14 @@ export function TransactionForm() {
     });
 
     const onSubmit = async (data: CreateTransactionInput) => {
+        if (!userId) {
+            alert("You must be logged in to add transactions.");
+            return;
+        }
         setIsSubmitting(true);
         try {
             // CONVERSION HAPPENS HERE
             const amountCents = toCents(data.amount);
-
-            // Mock User ID for now (Phase 2 local only)
-            const userId = '00000000-0000-0000-0000-000000000000';
 
             await addTransaction({
                 user_id: userId,

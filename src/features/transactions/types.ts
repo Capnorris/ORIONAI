@@ -20,7 +20,7 @@ export type Transaction = z.infer<typeof TransactionSchema>;
 
 export const CreateTransactionInputSchema = z.object({
     amount: z.number().positive(), // Float input from UI (e.g. 10.50)
-    currency: z.string().length(3).default('USD'),
+    currency: z.string().length(3),
     date: z.date(),
     merchant: z.string().optional(),
 });
