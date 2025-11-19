@@ -62,26 +62,70 @@ export const usePowerSync = () => {
 
 export const PowerSyncProvider = ({ children }: { children: React.ReactNode }) => {
     const [db, setDb] = useState<PowerSyncDatabase | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Initialize PowerSync
-        const powerSync = new PowerSyncDatabase({
-            schema,
-            database: {
-                name: 'orion_db_v1',
-            } as any,
-        });
-
-        const connector = new SupabaseConnector();
+        let powerSync: PowerSyncDatabase;
 
         const init = async () => {
-            await powerSync.init();
-            await powerSync.connect(connector);
-            setDb(powerSync);
+            try {
+                console.log('Initializing PowerSync...');
+
+                // Initialize PowerSync
+                powerSync = new PowerSyncDatabase({
+                    schema,
+                    database: {
+                        dbFilename: 'orion_db_v1.db',
+                    },
+                });
+
+                await powerSync.init();
+                console.log('PowerSync initialized successfully');
+
+                // Try to connect if we have credentials
+                const connector = new SupabaseConnector();
+                try {
+                    const credentials = await connector.fetchCredentials();
+                    if (credentials) {
+                        console.log('Connecting to PowerSync backend...');
+                        await powerSync.connect(connector);
+                        console.log('Connected to PowerSync backend');
+                    } else {
+                        console.log('No user session - running in local-only mode');
+                    }
+                } catch (connectError) {
+                    console.warn('Failed to connect to backend, running local-only:', connectError);
+                }
+
+                setDb(powerSync);
+            } catch (err) {
+                console.error('PowerSync initialization failed:', err);
+                setError(err instanceof Error ? err.message : 'Unknown error');
+            }
         };
 
         init();
+
+        return () => {
+            if (powerSync) {
+                powerSync.disconnectAndClear().catch(console.error);
+            }
+        };
     }, []);
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center h-screen flex-col gap-4">
+                <div className="text-red-500">Database Error: {error}</div>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                >
+                    Retry
+                </button>
+            </div>
+        );
+    }
 
     if (!db) {
         return <div className="flex items-center justify-center h-screen">Initializing Database...</div>;
